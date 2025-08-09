@@ -1,26 +1,88 @@
 import React, { useState } from "react";
-import CreateEventForm from "../Components/CreateEventForm";
+import { useApp } from "../Context/AppContext";
+import { useNavigate } from "react-router-dom";
 
-function CreateEventPage() {
-  const [createdEvent, setCreatedEvent] = useState(null);
+export default function CreateEventPage() {
+  const { user, createEvent } = useApp();
+  const [sport, setSport] = useState("");
+  const [location, setLocation] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [skillLevel, setSkillLevel] = useState("1");
+  const [ageGroup, setAgeGroup] = useState("");
+  const nav = useNavigate();
 
-  const handleCreate = (event) => {
-    setCreatedEvent(event);
-    console.log("Created Event:", event);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const evt = {
+      sport,
+      location,
+      date,
+      time,
+      skillLevel: Number(skillLevel),
+      ageGroup,
+      createdBy: user?.email || "anonymous@rf.app",
+    };
+    createEvent(evt);
+    nav("/home");
   };
 
   return (
-    <div>
-      {createdEvent ? (
-        <div>
-          <h3>Event Created Successfully!</h3>
-          <pre>{JSON.stringify(createdEvent, null, 2)}</pre>
-        </div>
-      ) : (
-        <CreateEventForm onCreate={handleCreate} />
+    <form onSubmit={handleSubmit}>
+      <h2>Create Event</h2>
+      {!user && (
+        <p style={{ color: "#ffa500" }}>
+          You’re not logged in — event will be created as <b>anonymous</b>.
+        </p>
       )}
-    </div>
+      <input
+        type="text"
+        placeholder="Sport"
+        value={sport}
+        onChange={(e) => setSport(e.target.value)}
+        required
+      />
+      <br />
+      <input
+        type="text"
+        placeholder="Location"
+        value={location}
+        onChange={(e) => setLocation(e.target.value)}
+        required
+      />
+      <br />
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        required
+      />
+      <br />
+      <input
+        type="time"
+        value={time}
+        onChange={(e) => setTime(e.target.value)}
+        required
+      />
+      <br />
+      <select
+        value={skillLevel}
+        onChange={(e) => setSkillLevel(e.target.value)}
+      >
+        <option value="1">1 - Casual</option>
+        <option value="2">2 - Intermediate</option>
+        <option value="3">3 - Competitive</option>
+      </select>
+      <br />
+      <input
+        type="text"
+        placeholder="Age Group (e.g. 20–30)"
+        value={ageGroup}
+        onChange={(e) => setAgeGroup(e.target.value)}
+        required
+      />
+      <br />
+      <button type="submit">Create</button>
+    </form>
   );
 }
-
-export default CreateEventPage;

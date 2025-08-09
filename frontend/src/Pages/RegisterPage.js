@@ -1,20 +1,21 @@
-// src/pages/RegisterPage.js
 import React, { useState } from "react";
 import Register from "../Components/Register";
+import { useApp } from "../Context/AppContext";
 
-function RegisterPage() {
-  const [registeredUser, setRegisteredUser] = useState(null);
+export default function RegisterPage() {
+  const { user, setUser } = useApp();
+  const [msg, setMsg] = useState("");
 
-  const handleRegister = (user) => {
-    setRegisteredUser(user);
+  const handleRegister = (u) => {
+    setUser(u); // pretend backend created the user
+    setMsg("Registration successful!");
   };
 
   return (
     <div>
-      {registeredUser ? (
+      {user ? (
         <p>
-          Welcome, {registeredUser.name} {registeredUser.surname}! Registration
-          successful.
+          Welcome, {user.name} {user.surname}! {msg}
         </p>
       ) : (
         <Register onRegister={handleRegister} />
@@ -22,5 +23,3 @@ function RegisterPage() {
     </div>
   );
 }
-
-export default RegisterPage;

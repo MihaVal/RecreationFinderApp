@@ -1,34 +1,46 @@
 import React from "react";
+import { useApp } from "../Context/AppContext";
 
-function EventCard({ event }) {
+export default function EventCard({ event }) {
+  const { user, joinEvent, leaveEvent } = useApp();
+  const joined = user && event.attendees.includes(user.email);
+
+  const handleJoin = () => user && joinEvent(event.id, user.email);
+  const handleLeave = () => user && leaveEvent(event.id, user.email);
+
   return (
     <div
       style={{
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        padding: "1rem",
-        marginBottom: "1rem",
-        background: "#1e1e1e",
-        color: "#fff",
+        border: "1px solid #333",
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 12,
       }}
     >
       <h3>
         {event.sport} @ {event.location}
       </h3>
       <p>
-        <strong>Date:</strong> {event.date}
+        <b>Date:</b> {event.date} <b>Time:</b> {event.time}
       </p>
       <p>
-        <strong>Time:</strong> {event.time}
+        <b>Skill:</b> {event.skillLevel} <b>Age:</b> {event.ageGroup}
       </p>
       <p>
-        <strong>Skill Level:</strong> {event.skillLevel}
+        <b>Created by:</b> {event.createdBy}
       </p>
       <p>
-        <strong>Age Group:</strong> {event.ageGroup}
+        <b>Attendees:</b> {event.attendees.length}
       </p>
+      {user ? (
+        joined ? (
+          <button onClick={handleLeave}>Leave</button>
+        ) : (
+          <button onClick={handleJoin}>Join</button>
+        )
+      ) : (
+        <small>Login to join</small>
+      )}
     </div>
   );
 }
-
-export default EventCard;
