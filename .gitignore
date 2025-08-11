@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+.pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+
+# Environment variables
+.env*.local
+
+# Vercel
+.vercel
