@@ -19,8 +19,15 @@ interface Event {
 
 export default function Home() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [filters, setFilters] = useState({
+    search: '',
+    sport: '',
+    skillLevel: '',
+    date: ''
+  });
 
   useEffect(() => {
     // Check if user is logged in
@@ -34,6 +41,40 @@ export default function Home() {
     loadEvents();
   }, []);
 
+  // Filter events when filters change
+  useEffect(() => {
+    let filtered = events;
+
+    // Search filter
+    if (filters.search) {
+      filtered = filtered.filter(event => 
+        event.sport.toLowerCase().includes(filters.search.toLowerCase()) ||
+        event.location.toLowerCase().includes(filters.search.toLowerCase())
+      );
+    }
+
+    // Sport filter
+    if (filters.sport) {
+      filtered = filtered.filter(event => event.sport === filters.sport);
+    }
+
+    // Skill level filter
+    if (filters.skillLevel) {
+      filtered = filtered.filter(event => event.skillLevel === parseInt(filters.skillLevel));
+    }
+
+    // Date filter
+    if (filters.date) {
+      filtered = filtered.filter(event => {
+        const eventDate = new Date(event.dateTime).toDateString();
+        const filterDate = new Date(filters.date).toDateString();
+        return eventDate === filterDate;
+      });
+    }
+
+    setFilteredEvents(filtered);
+  }, [events, filters]);
+
   const loadEvents = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -45,6 +86,7 @@ export default function Home() {
       const res = await fetch('/api/events', { headers });
       const data = await res.json();
       setEvents(data);
+      setFilteredEvents(data);
     } catch (error) {
       console.error('Failed to load events:', error);
     } finally {
@@ -100,6 +142,25 @@ export default function Home() {
     setUser(null);
   };
 
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFilters({
+      ...filters,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      sport: '',
+      skillLevel: '',
+      date: ''
+    });
+  };
+
+  // Get unique sports for filter dropdown
+  const uniqueSports = [...new Set(events.map(event => event.sport))].sort();
+
   return (
     <div>
       <nav className="nav">
@@ -109,6 +170,7 @@ export default function Home() {
             {user ? (
               <>
                 <span>Hello, {user.name}!</span>
+                <Link href="/profile" className="btn" style={{ margin: '0 10px' }}>My Profile</Link>
                 <Link href="/create" className="btn" style={{ margin: '0 10px' }}>Create Event</Link>
                 <button onClick={logout} className="btn">Logout</button>
               </>
@@ -125,11 +187,69 @@ export default function Home() {
       <div className="container">
         <h2>Upcoming Events</h2>
         
+        {/* Filters */}
+        <div className="card" style={{ marginBottom: '20px' }}>
+          <h3>Filters & Search</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label>Search (sport or location)</label>
+              <input
+                type="text"
+                name="search"
+                value={filters.search}
+                onChange={handleFilterChange}
+                placeholder="Basketball, Central Park..."
+              />
+            </div>
+            
+            <div className="form-group" style={{ margin: 0 }}>
+              <label>Sport</label>
+              <select name="sport" value={filters.sport} onChange={handleFilterChange}>
+                <option value="">All Sports</option>
+                {uniqueSports.map(sport => (
+                  <option key={sport} value={sport}>{sport}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="form-group" style={{ margin: 0 }}>
+              <label>Skill Level</label>
+              <select name="skillLevel" value={filters.skillLevel} onChange={handleFilterChange}>
+                <option value="">All Levels</option>
+                <option value="1">1 - Beginner</option>
+                <option value="2">2 - Novice</option>
+                <option value="3">3 - Intermediate</option>
+                <option value="4">4 - Advanced</option>
+                <option value="5">5 - Expert</option>
+              </select>
+            </div>
+            
+            <div className="form-group" style={{ margin: 0 }}>
+              <label>Date</label>
+              <input
+                type="date"
+                name="date"
+                value={filters.date}
+                onChange={handleFilterChange}
+              />
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '15px' }}>
+            <button onClick={clearFilters} className="btn" style={{ background: '#6c757d' }}>
+              Clear Filters
+            </button>
+            <span style={{ marginLeft: '15px', color: '#666' }}>
+              Showing {filteredEvents.length} of {events.length} events
+            </span>
+          </div>
+        </div>
+        
         {loading ? (
           <p>Loading events...</p>
         ) : (
           <div className="events-grid">
-            {events.map(event => (
+            {filteredEvents.map(event => (
               <div key={event.id} className="card">
                 <h3>{event.sport}</h3>
                 <p><strong>Location:</strong> {event.location}</p>
@@ -172,6 +292,10 @@ export default function Home() {
 
         {!loading && events.length === 0 && (
           <p>No events found. <Link href="/create" className="btn">Create the first one!</Link></p>
+        )}
+        
+        {!loading && events.length > 0 && filteredEvents.length === 0 && (
+          <p>No events match your filters. <button onClick={clearFilters} className="btn">Clear filters</button></p>
         )}
       </div>
     </div>
