@@ -125,13 +125,7 @@ export default function Profile() {
                       <p><strong>Attendees:</strong> {event.attendee_count}</p>
                       
                       <div style={{ marginTop: '10px' }}>
-                        <span style={{ 
-                          background: '#28a745', 
-                          color: 'white', 
-                          padding: '5px 10px', 
-                          borderRadius: '15px', 
-                          fontSize: '0.9rem' 
-                        }}>
+                        <span className="status-badge creator">
                           Your Event
                         </span>
                       </div>

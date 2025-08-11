@@ -188,8 +188,8 @@ export default function Home() {
         <h2>Upcoming Events</h2>
         
         {/* Filters */}
-        <div className="card" style={{ marginBottom: '20px' }}>
-          <h3>Filters & Search</h3>
+        <div className="card" style={{ marginBottom: '32px' }}>
+          <h3>🔍 Filters & Search</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
             <div className="form-group" style={{ margin: 0 }}>
               <label>Search (sport or location)</label>
@@ -252,13 +252,13 @@ export default function Home() {
             {filteredEvents.map(event => (
               <div key={event.id} className="card">
                 <h3>{event.sport}</h3>
-                <p><strong>Location:</strong> {event.location}</p>
-                <p><strong>Date:</strong> {new Date(event.dateTime).toLocaleDateString()}</p>
-                <p><strong>Time:</strong> {new Date(event.dateTime).toLocaleTimeString()}</p>
-                <p><strong>Skill Level:</strong> {event.skillLevel}/5</p>
-                <p><strong>Age Group:</strong> {event.ageGroup}</p>
-                <p><strong>Organizer:</strong> {event.creator_name} {event.creator_surname}</p>
-                <p><strong>Attendees:</strong> {event.attendee_count}</p>
+                <p><strong>📍 Location:</strong> {event.location}</p>
+                <p><strong>📅 Date:</strong> {new Date(event.dateTime).toLocaleDateString()}</p>
+                <p><strong>⏰ Time:</strong> {new Date(event.dateTime).toLocaleTimeString()}</p>
+                <p><strong>⭐ Skill Level:</strong> {event.skillLevel}/5</p>
+                <p><strong>👥 Age Group:</strong> {event.ageGroup}</p>
+                <p><strong>🎯 Organizer:</strong> {event.creator_name} {event.creator_surname}</p>
+                <p><strong>👤 Attendees:</strong> {event.attendee_count}</p>
                 
                 {user && user.id !== event.createdById && (
                   event.user_joined ? (
@@ -281,9 +281,11 @@ export default function Home() {
                 )}
                 
                 {user && user.id === event.createdById && (
-                  <p style={{ marginTop: '10px', fontStyle: 'italic', color: '#666' }}>
-                    Your event
-                  </p>
+                  <div style={{ marginTop: '16px' }}>
+                    <span className="status-badge creator">
+                      Your Event
+                    </span>
+                  </div>
                 )}
               </div>
             ))}

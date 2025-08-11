@@ -51,7 +51,7 @@ export default function Login() {
   return (
     <div className="container">
       <div className="card" style={{ maxWidth: '400px', margin: '50px auto' }}>
-        <h1>Login</h1>
+        <h1 style={{ textAlign: 'center', color: '#667eea', marginBottom: '32px' }}>🔐 Welcome Back</h1>
         
         {error && <div className="error">{error}</div>}
         

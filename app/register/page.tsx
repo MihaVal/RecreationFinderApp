@@ -53,8 +53,8 @@ export default function Register() {
 
   return (
     <div className="container">
-      <div className="card" style={{ maxWidth: '400px', margin: '50px auto' }}>
-        <h1>Register</h1>
+      <div className="card" style={{ maxWidth: '450px', margin: '50px auto' }}>
+        <h1 style={{ textAlign: 'center', color: '#667eea', marginBottom: '32px' }}>🎯 Create Account</h1>
         
         {error && <div className="error">{error}</div>}
         

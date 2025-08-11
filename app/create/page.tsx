@@ -80,7 +80,7 @@ export default function CreateEvent() {
   return (
     <div className="container">
       <div className="card" style={{ maxWidth: '600px', margin: '20px auto' }}>
-        <h1>Create New Event</h1>
+        <h1 style={{ textAlign: 'center', color: '#667eea', marginBottom: '32px' }}>🚀 Create New Event</h1>
         
         {error && <div className="error">{error}</div>}
         
