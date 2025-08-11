@@ -13,24 +13,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const resolvedParams = await params;
     const eventId = parseInt(resolvedParams.id);
 
-    // Check if already joined
-    const existing = await pool.query(
-      'SELECT id FROM event_attendees WHERE "eventId" = $1 AND "userId" = $2',
+    // Leave event
+    const result = await pool.query(
+      'DELETE FROM event_attendees WHERE "eventId" = $1 AND "userId" = $2',
       [eventId, decoded.userId]
     );
 
-    if (existing.rows.length > 0) {
-      return NextResponse.json({ error: 'Already joined this event' }, { status: 400 });
+    if (result.rowCount === 0) {
+      return NextResponse.json({ error: 'Not joined to this event' }, { status: 400 });
     }
 
-    // Join event
-    await pool.query(
-      'INSERT INTO event_attendees ("eventId", "userId") VALUES ($1, $2)',
-      [eventId, decoded.userId]
-    );
-
-    return NextResponse.json({ message: 'Joined event successfully' });
+    return NextResponse.json({ message: 'Left event successfully' });
   } catch (error: any) {
+    console.error('Leave event error:', error);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }

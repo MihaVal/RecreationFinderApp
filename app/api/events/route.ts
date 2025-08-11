@@ -3,14 +3,27 @@ import jwt from 'jsonwebtoken';
 import pool from '@/lib/db';
 
 // Get all events
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    let userId = null;
+    
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number };
+        userId = decoded.userId;
+      } catch {
+        // Invalid token, continue without user context
+      }
+    }
+
     const result = await pool.query(`
       SELECT 
         e.*,
         u.name as creator_name,
         u.surname as creator_surname,
-        COUNT(ea.id) as attendee_count
+        COUNT(ea.id) as attendee_count,
+        ${userId ? `BOOL_OR(ea."userId" = ${userId}) as user_joined` : 'false as user_joined'}
       FROM events e
       JOIN users u ON e."createdById" = u.id
       LEFT JOIN event_attendees ea ON e.id = ea."eventId"

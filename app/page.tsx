@@ -13,6 +13,8 @@ interface Event {
   creator_name: string;
   creator_surname: string;
   attendee_count: number;
+  user_joined: boolean;
+  createdById: number;
 }
 
 export default function Home() {
@@ -34,7 +36,13 @@ export default function Home() {
 
   const loadEvents = async () => {
     try {
-      const res = await fetch('/api/events');
+      const token = localStorage.getItem('token');
+      const headers: any = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch('/api/events', { headers });
       const data = await res.json();
       setEvents(data);
     } catch (error) {
@@ -56,9 +64,33 @@ export default function Home() {
 
       if (res.ok) {
         loadEvents(); // Refresh events
+      } else {
+        const error = await res.json();
+        console.error('Failed to join event:', error.error);
       }
     } catch (error) {
       console.error('Failed to join event:', error);
+    }
+  };
+
+  const leaveEvent = async (eventId: number) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const res = await fetch(`/api/events/${eventId}/leave`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        loadEvents(); // Refresh events
+      } else {
+        const error = await res.json();
+        console.error('Failed to leave event:', error.error);
+      }
+    } catch (error) {
+      console.error('Failed to leave event:', error);
     }
   };
 
@@ -108,14 +140,30 @@ export default function Home() {
                 <p><strong>Organizer:</strong> {event.creator_name} {event.creator_surname}</p>
                 <p><strong>Attendees:</strong> {event.attendee_count}</p>
                 
-                {user && (
-                  <button 
-                    onClick={() => joinEvent(event.id)}
-                    className="btn"
-                    style={{ marginTop: '10px' }}
-                  >
-                    Join Event
-                  </button>
+                {user && user.id !== event.createdById && (
+                  event.user_joined ? (
+                    <button 
+                      onClick={() => leaveEvent(event.id)}
+                      className="btn"
+                      style={{ marginTop: '10px', background: '#dc3545' }}
+                    >
+                      Leave Event
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => joinEvent(event.id)}
+                      className="btn"
+                      style={{ marginTop: '10px' }}
+                    >
+                      Join Event
+                    </button>
+                  )
+                )}
+                
+                {user && user.id === event.createdById && (
+                  <p style={{ marginTop: '10px', fontStyle: 'italic', color: '#666' }}>
+                    Your event
+                  </p>
                 )}
               </div>
             ))}
